@@ -2,17 +2,14 @@ import redis
 import sys
 import subprocess
 
-
 prefix = ''
 if len(sys.argv) > 1:
     prefix = sys.argv[1]
 
 r = redis.StrictRedis(host='localhost', port=6379, charset='ascii', decode_responses=True)
 
-# sizes = [1024, 12500, 1250000]
-# keycnt = [16, 330000]
-sizes = [10, 20]
-keycnt = [10, 20]
+sizes = [32, 1000, 10000, 50000]
+keycnt = [16, 35, 101]
 for sz in sizes:
     for cnt in keycnt:
         r.flushall();
@@ -21,8 +18,7 @@ for sz in sizes:
 
         keys = r.keys('memtier-*')
 
-        # ops = ['and', 'or', 'xor', 'not', 'diff', 'diff1', 'andor', 'one']
-        ops = ['and', 'or']
+        ops = ['and', 'not', 'diff', 'one']
         for op in ops:
             memtier_cmd='bitop {} dst:{} '.format(op, op)
             for key in keys:
