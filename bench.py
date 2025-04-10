@@ -8,8 +8,8 @@ if len(sys.argv) > 1:
 
 r = redis.StrictRedis(host='localhost', port=6379, charset='ascii', decode_responses=True)
 
-sizes = [32, 1000, 10000, 50000]
-keycnt = [16, 35, 101]
+sizes = [32, 1000, 50000, 1000000, 10000000]
+keycnt = [2, 5, 16, 64]
 for sz in sizes:
     for cnt in keycnt:
         r.flushall();
@@ -17,6 +17,7 @@ for sz in sizes:
         subprocess.run(memtier_cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
         keys = r.keys('memtier-*')
+        assert(len(keys) == cnt)
 
         ops = ['and', 'not', 'diff', 'one']
         for op in ops:
