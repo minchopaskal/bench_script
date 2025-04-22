@@ -10,6 +10,7 @@ r = redis.StrictRedis(host='localhost', port=6379, charset='ascii', decode_respo
 
 sizes = [32, 1000, 50000, 1000000, 10000000]
 keycnt = [2, 5, 16, 64]
+times = {32: 2, 1000: 2, 50000: 3, 100000: 5, 1000000: 10, 10000000: 10}
 for sz in sizes:
     for cnt in keycnt:
         r.flushall();
@@ -26,7 +27,7 @@ for sz in sizes:
                 memtier_cmd += key
                 memtier_cmd += ' '
             curr_prefix = "{}-{}-{}-{}".format(prefix, op, sz, cnt)
-            memtier_cmd = "memtier_benchmark --command='{}' -n10000 --hdr-file-prefix={} --hide-histogram | tail -n2 | head -n1".format(memtier_cmd, curr_prefix)
+            memtier_cmd = "memtier_benchmark --test-time={} --command='{}' --hdr-file-prefix={} --hide-histogram | tail -n2 | head -n1".format(times[sz]*60, memtier_cmd, curr_prefix)
             print("RUNNING: {}".format(memtier_cmd))
             with open("{}_log.txt".format(curr_prefix), 'w') as f:
                 process = subprocess.run(memtier_cmd, shell=True, stdout=f, stderr=subprocess.DEVNULL)
